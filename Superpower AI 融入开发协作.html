@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superpower AI 融入开发协作</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e5e7eb;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 2rem;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .text-content {
+            max-width: 65ch;
+        }
+        
+        code, .code {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+            background: #1a1a1a;
+            padding: 0.2em 0.6em;
+            border-radius: 0.375rem;
+            font-size: 0.9em;
+            color: #7dd3fc;
+            border: 1px solid #262626;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #7dd3fc 50%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card {
+            background: #141414;
+            border: 1px solid #262626;
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.1);
+        }
+        
+        .node {
+            background: #1a1a1a;
+            border: 2px solid #3b82f6;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .arrow {
+            width: 40px;
+            height: 2px;
+            background: #3b82f6;
+            position: relative;
+            margin: 0 1rem;
+        }
+        
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #3b82f6;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        
+        .flow-vertical .arrow {
+            width: 2px;
+            height: 40px;
+            margin: 1rem 0;
+        }
+        
+        .flow-vertical .arrow::after {
+            left: -4px;
+            top: auto;
+            bottom: -8px;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid #3b82f6;
+        }
+        
+        .network-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+        
+        .swim-lane {
+            background: #0f0f0f;
+            border: 1px solid #262626;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #1a1a1a;
+            color: #7dd3fc;
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            border: 1px solid #262626;
+            margin: 0.25rem;
+        }
+        
+        .matrix-cell {
+            background: #141414;
+            border: 1px solid #262626;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 0.5rem;
+        }
+        
+        .emphasis-bar {
+            background: linear-gradient(90deg, #3b82f6 0%, #7dd3fc 100%);
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            margin-top: 2rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .pentagon {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 2rem auto;
+        }
+        
+        .pentagon-item {
+            position: absolute;
+            width: 140px;
+            background: #1a1a1a;
+            border: 2px solid #3b82f6;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        
+        .link-card {
+            background: #141414;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem 1.5rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .link-card:hover {
+            background: #1a1a1a;
+            border-left-width: 6px;
+        }
+        
+        .link-card a {
+            color: #7dd3fc;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .link-card a:hover {
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 01. 封面 -->
+<section class="section" style="position: relative; overflow: hidden;">
+    <div class="network-bg">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="network" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <circle cx="50" cy="50" r="2" fill="#3b82f6"/>
+                    <line x1="50" y1="50" x2="100" y2="50" stroke="#3b82f6" stroke-width="1"/>
+                    <line x1="50" y1="50" x2="75" y2="86.6" stroke="#3b82f6" stroke-width="1"/>
+                    <line x1="50" y1="50" x2="25" y2="86.6" stroke="#3b82f6" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#network)"/>
+        </svg>
+    </div>
+    <div class="container" style="position: relative; z-index: 1;">
+        <h1 class="text-7xl font-black mb-6 gradient-text" style="line-height: 1.2;">
+            Superpower AI<br/>融入开发协作
+        </h1>
+        <p class="text-3xl text-gray-400 mb-4 font-light">
+            从个人提效到团队协作能力的工程化实践
+        </p>
+        <p class="text-xl text-gray-500">
+            两个月 AI 协作实践复盘
+        </p>
+    </div>
+</section>
+
+<!-- 02. 分享主线 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">分享主线</h2>
+        <p class="text-xl text-gray-400 mb-12">从工具使用，到工程化协作</p>
+        
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="node flex-1 min-w-[200px]">
+                <div class="text-2xl font-bold text-blue-400 mb-2">1</div>
+                <div class="text-xl font-semibold mb-2">Harness Engineer</div>
+                <div class="text-sm text-gray-400">先搭 AI 协作底座</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[200px]">
+                <div class="text-2xl font-bold text-blue-400 mb-2">2</div>
+                <div class="text-xl font-semibold mb-2">Superpowers</div>
+                <div class="text-sm text-gray-400">定义 AI 参与开发的方法</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[200px]">
+                <div class="text-2xl font-bold text-blue-400 mb-2">3</div>
+                <div class="text-xl font-semibold mb-2">Skill</div>
+                <div class="text-sm text-gray-400">把方法约束到关键动作</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[200px]">
+                <div class="text-2xl font-bold text-blue-400 mb-2">4</div>
+                <div class="text-xl font-semibold mb-2">ai-workspace</div>
+                <div class="text-sm text-gray-400">接入团队真实工程</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[200px]">
+                <div class="text-2xl font-bold text-blue-400 mb-2">5</div>
+                <div class="text-xl font-semibold mb-2">实践效果</div>
+                <div class="text-sm text-gray-400">KOL 项目小需求迭代验证</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 03. 分享四个部分 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">分享四个部分</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card">
+                <div class="text-5xl font-black text-blue-400 mb-4">01</div>
+                <h3 class="text-2xl font-bold mb-3">Harness Engineer 是 AI 协作编程的基础</h3>
+                <p class="text-gray-400">Harness Engineer 本质上是"驾驭工程"。它解决的是：如何让 AI 真正进入工程环境，并成为可控的开发协作者。</p>
+            </div>
+            
+            <div class="card">
+                <div class="text-5xl font-black text-blue-400 mb-4">02</div>
+                <h3 class="text-2xl font-bold mb-3">Superpowers 到底是什么</h3>
+                <p class="text-gray-400">如果说 Harness Engineer 解决的是"AI 怎么工作"，那 Superpowers 解决的就是"AI 按什么方法参与开发协作"。</p>
+            </div>
+            
+            <div class="card">
+                <div class="text-5xl font-black text-blue-400 mb-4">03</div>
+                <h3 class="text-2xl font-bold mb-3">我们自研的 AI 工作空间</h3>
+                <p class="text-gray-400">如果说 Harness Engineer 解决的是"AI 如何被驾驭"，Superpowers 解决的是"AI 按什么方法工作"，那我们的 ai-workspace 解决的就是：如何把这套方法接入团队真实工程环境，并变成可复用、可扩展、可沉淀的协作基础设施。</p>
+            </div>
+            
+            <div class="card">
+                <div class="text-5xl font-black text-blue-400 mb-4">04</div>
+                <h3 class="text-2xl font-bold mb-3">阶段性效果与不足</h3>
+                <p class="text-gray-400">ai-workspace 现在还不是一个完美系统，但 KOL 项目小需求迭代这个例子会证明一件事：当 AI 拥有工作环境、流程约束和上下文支撑后，就能帮助第一次使用者更快进入复杂业务和多仓工程，并参与到更完整的需求交付中。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 04. AI 编程落地的问题 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">AI 编程落地的问题</h2>
+        
+        <div class="flex items-center justify-center" style="min-height: 500px; position: relative;">
+            <div class="node" style="width: 320px; text-align: center; z-index: 2;">
+                <div class="text-2xl font-bold text-red-400">核心问题</div>
+                <div class="text-lg mt-3 text-gray-300">AI 会写代码，但为什么很难稳定进入团队协作？</div>
+            </div>
+            
+            <!-- 五个问题节点环绕中心 -->
+            <div class="node" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 260px; text-align: center; background: #1a0f0f; border-color: #dc2626;">
+                <div class="text-sm font-semibold text-red-300">需求不清，AI 容易直接开写</div>
+            </div>
+            
+            <div class="node" style="position: absolute; top: 30%; right: 10%; width: 260px; text-align: center; background: #1a0f0f; border-color: #dc2626;">
+                <div class="text-sm font-semibold text-red-300">上下文不完整，输出不贴合项目</div>
+            </div>
+            
+            <div class="node" style="position: absolute; bottom: 15%; right: 15%; width: 260px; text-align: center; background: #1a0f0f; border-color: #dc2626;">
+                <div class="text-sm font-semibold text-red-300">每个人用法不同，经验难复用</div>
+            </div>
+            
+            <div class="node" style="position: absolute; bottom: 15%; left: 15%; width: 260px; text-align: center; background: #1a0f0f; border-color: #dc2626;">
+                <div class="text-sm font-semibold text-red-300">缺少验证，AI 容易提前宣称完成</div>
+            </div>
+            
+            <div class="node" style="position: absolute; top: 30%; left: 10%; width: 260px; text-align: center; background: #1a0f0f; border-color: #dc2626;">
+                <div class="text-sm font-semibold text-red-300">过程留在对话里，团队难沉淀</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 05. Harness Engineer -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">Harness Engineer：给 AI 设计工作环境</h2>
+        
+        <div class="flex items-center justify-center gap-12 flex-wrap">
+            <div class="node" style="width: 200px; text-align: center;">
+                <div class="text-4xl mb-3">🤖</div>
+                <div class="text-xl font-bold">AI Agent</div>
+                <div class="text-sm text-gray-400 mt-2">自由发挥</div>
+            </div>
+            
+            <div class="text-6xl text-blue-400">→</div>
+            
+            <div class="card" style="width: 600px;">
+                <div class="text-2xl font-bold mb-6 text-center gradient-text">工程工作环境</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="matrix-cell">
+                        <div class="font-semibold text-blue-400">约束机制</div>
+                        <div class="text-sm text-gray-400 mt-1">角色、边界、规范</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="font-semibold text-blue-400">上下文</div>
+                        <div class="text-sm text-gray-400 mt-1">结构化上下文工程</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="font-semibold text-blue-400">工作流</div>
+                        <div class="text-sm text-gray-400 mt-1">明确执行顺序</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="font-semibold text-blue-400">验证</div>
+                        <div class="text-sm text-gray-400 mt-1">测试与审查</div>
+                    </div>
+                    <div class="matrix-cell" style="grid-column: span 2;">
+                        <div class="font-semibold text-blue-400">反馈循环</div>
+                        <div class="text-sm text-gray-400 mt-1">持续纠偏</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            AI 不是在开放对话里自由发挥，而是在工程环境里稳定工作
+        </div>
+    </div>
+</section>
+
+<!-- 06. Harness Engineer 五个核心能力 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">Harness Engineer 五个核心能力</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="card text-center">
+                <div class="text-4xl mb-4">🎯</div>
+                <h3 class="text-xl font-bold mb-3 text-blue-400">约束机制</h3>
+                <p class="text-sm text-gray-400">角色、边界、规范清晰</p>
+            </div>
+            
+            <div class="card text-center">
+                <div class="text-4xl mb-4">📋</div>
+                <h3 class="text-xl font-bold mb-3 text-blue-400">基于 Spec 开发</h3>
+                <p class="text-sm text-gray-400">围绕需求和设计工作</p>
+            </div>
+            
+            <div class="card text-center">
+                <div class="text-4xl mb-4">🔄</div>
+                <h3 class="text-xl font-bold mb-3 text-blue-400">工作流控制</h3>
+                <p class="text-sm text-gray-400">分析、设计、开发、验证有明确顺序</p>
+            </div>
+            
+            <div class="card text-center">
+                <div class="text-4xl mb-4">📚</div>
+                <h3 class="text-xl font-bold mb-3 text-blue-400">上下文工程</h3>
+                <p class="text-sm text-gray-400">让 AI 获取正确且结构化的上下文</p>
+            </div>
+            
+            <div class="card text-center">
+                <div class="text-4xl mb-4">🔁</div>
+                <h3 class="text-xl font-bold mb-3 text-blue-400">反馈循环</h3>
+                <p class="text-sm text-gray-400">通过测试、review、运行结果持续纠偏</p>
+            </div>
+        </div>
+        
+        <div class="emphasis-bar">
+            门禁不是为了拖慢 AI，而是为了防止 AI 快速跑偏
+        </div>
+    </div>
+</section>
+
+<!-- 07. Superpowers 是什么 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">Superpowers 是什么</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-12">
+            <div class="card" style="background: #1a0f0f; border-color: #dc2626;">
+                <h3 class="text-2xl font-bold mb-6 text-red-400">不是</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <span class="text-red-400 mr-3">✗</span>
+                        <span class="text-gray-300">普通插件</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-red-400 mr-3">✗</span>
+                        <span class="text-gray-300">prompt 集合</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-red-400 mr-3">✗</span>
+                        <span class="text-gray-300">自由发挥式 AI 编程</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card" style="background: #0f1a0f; border-color: #10b981;">
+                <h3 class="text-2xl font-bold mb-6 text-green-400">而是</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-3">✓</span>
+                        <span class="text-gray-300">面向 coding agents 的软件开发方法论</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-3">✓</span>
+                        <span class="text-gray-300">一组可组合的开发流程 skill</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-3">✓</span>
+                        <span class="text-gray-300">把工程纪律注入 AI 执行过程</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="text-center text-2xl font-bold gradient-text">
+            让 AI 从"会生成代码"变成"会按流程交付"
+        </div>
+    </div>
+</section>
+
+<!-- 08. Superpowers 工作流 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">Superpowers 的基本工作流</h2>
+        
+        <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+            <div class="node flex-1 min-w-[180px]" style="text-align: center;">
+                <div class="text-3xl mb-3">💡</div>
+                <div class="text-xl font-bold mb-2">Brainstorm</div>
+                <div class="text-sm text-gray-400">先澄清需求和边界</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[180px]" style="text-align: center;">
+                <div class="text-3xl mb-3">📝</div>
+                <div class="text-xl font-bold mb-2">Spec</div>
+                <div class="text-sm text-gray-400">形成设计和统一事实源</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[180px]" style="text-align: center;">
+                <div class="text-3xl mb-3">🗺️</div>
+                <div class="text-xl font-bold mb-2">Plan</div>
+                <div class="text-sm text-gray-400">拆解任务和执行路径</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[180px]" style="text-align: center;">
+                <div class="text-3xl mb-3">⚙️</div>
+                <div class="text-xl font-bold mb-2">Execute</div>
+                <div class="text-sm text-gray-400">按计划实现</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[180px]" style="text-align: center;">
+                <div class="text-3xl mb-3">✅</div>
+                <div class="text-xl font-bold mb-2">Verify</div>
+                <div class="text-sm text-gray-400">测试、review、验收闭环</div>
+            </div>
+        </div>
+        
+        <div class="text-center text-xl text-gray-300">
+            Superpowers 把"先想清楚再动手"变成 coding agent 的默认工作方式
+        </div>
+    </div>
+</section>
+
+<!-- 09. Superpowers Skill 覆盖开发流程 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">Superpowers Skill 覆盖开发流程</h2>
+        
+        <div class="space-y-4">
+            <div class="swim-lane">
+                <h3 class="text-xl font-bold mb-4 text-blue-400">需求设计</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">superpowers:brainstorming</span>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <h3 class="text-xl font-bold mb-4 text-blue-400">技术方案设计</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">superpowers:brainstorming</span>
+                    <span class="code">superpowers:writing-plans</span>
+                </div>
+            </div>
+            
+            <div class="swim-lane" style="border-color: #3b82f6; border-width: 2px;">
+                <h3 class="text-xl font-bold mb-4 text-blue-400">编码实现</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">superpowers:executing-plans</span>
+                    <span class="code">superpowers:test-driven-development</span>
+                    <span class="code">superpowers:subagent-driven-development</span>
+                    <span class="code">superpowers:dispatching-parallel-agents</span>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <h3 class="text-xl font-bold mb-4 text-blue-400">调试修复</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">superpowers:systematic-debugging</span>
+                </div>
+            </div>
+            
+            <div class="swim-lane" style="border-color: #3b82f6; border-width: 2px;">
+                <h3 class="text-xl font-bold mb-4 text-blue-400">验证与审查</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">superpowers:verification-before-completion</span>
+                    <span class="code">superpowers:requesting-code-review</span>
+                    <span class="code">superpowers:receiving-code-review</span>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <h3 class="text-xl font-bold mb-4 text-blue-400">交付收尾</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">superpowers:finishing-a-development-branch</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-8 text-xl text-gray-300">
+            Skill 的价值是把方法论落到 AI 的具体执行路径里
+        </div>
+    </div>
+</section>
+
+<!-- 10. 为什么自研 ai-workspace -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">有 Superpowers，为什么还要自研 ai-workspace</h2>
+        
+        <div class="flex items-center justify-center gap-8 flex-wrap my-12">
+            <div class="card" style="width: 350px;">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-400">Superpowers</h3>
+                    <p class="text-gray-400">通用方法论</p>
+                </div>
+            </div>
+            
+            <div style="width: 300px; height: 150px; position: relative;">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #3b82f6, #7dd3fc); border-radius: 2px;"></div>
+                <div style="position: absolute; top: 50%; right: -8px; width: 0; height: 0; border-left: 16px solid #7dd3fc; border-top: 10px solid transparent; border-bottom: 10px solid transparent;"></div>
+                <div class="node" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; text-align: center; padding: 1rem;">
+                    <div class="font-bold text-sm">ai-workspace</div>
+                </div>
+            </div>
+            
+            <div class="card" style="width: 350px;">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-4 text-green-400">团队真实工程</h3>
+                    <p class="text-gray-400 text-sm">多仓、文档、测试、门禁、交付</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="text-xl font-bold mb-4">ai-workspace 要解决团队真实工程落地问题：</h3>
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3">•</span>
+                    <span class="text-gray-300">多仓项目接入</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3">•</span>
+                    <span class="text-gray-300">中文需求文档和团队文档流</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3">•</span>
+                    <span class="text-gray-300">前后端技术方案</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3">•</span>
+                    <span class="text-gray-300">测试用例和自动化测试</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3">•</span>
+                    <span class="text-gray-300">需求地图和分支协作</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3">•</span>
+                    <span class="text-gray-300">质量门禁和交付沉淀</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="text-center mt-8 text-xl text-gray-300">
+            Superpowers 解决 AI 按什么方法工作，ai-workspace 解决这套方法如何进入团队真实工程
+        </div>
+    </div>
+</section>
+
+<!-- 11. Superpowers Skill 与自研 Skill 的关系 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">Superpowers Skill 与自研 Skill 的关系</h2>
+        
+        <div class="flex flex-col items-center gap-8">
+            <div class="card" style="width: 100%; max-width: 1000px; background: #0f1a1a; border-color: #10b981;">
+                <h3 class="text-2xl font-bold mb-6 text-green-400 text-center">团队流程实现（上层）</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <span class="code">prd-generator</span>
+                    <span class="code">backend-tech-design</span>
+                    <span class="code">frontend-tech-design</span>
+                    <span class="code">test-case-generator</span>
+                    <span class="code">api-test-automation</span>
+                    <span class="code">ui-test-automation</span>
+                    <span class="code">requirement-code-review</span>
+                </div>
+            </div>
+            
+            <div style="width: 2px; height: 80px; background: #3b82f6; position: relative;">
+                <div style="position: absolute; bottom: -10px; left: -5px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 12px solid #3b82f6;"></div>
+                <div style="position: absolute; top: 30px; left: 20px; white-space: nowrap; color: #7dd3fc; font-size: 0.875rem;">继承、扩展、团队化</div>
+            </div>
+            
+            <div class="card" style="width: 100%; max-width: 1000px; background: #1a1a0f; border-color: #f59e0b;">
+                <h3 class="text-2xl font-bold mb-6 text-yellow-400 text-center">通用方法论（底层）</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <span class="code">superpowers:brainstorming</span>
+                    <span class="code">superpowers:writing-plans</span>
+                    <span class="code">superpowers:test-driven-development</span>
+                    <span class="code">superpowers:subagent-driven-development</span>
+                    <span class="code">superpowers:verification-before-completion</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            Superpowers 是通用工程方法，ai-workspace 的自研 skill 是团队流程实现
+        </div>
+    </div>
+</section>
+
+<!-- 12. ai-workspace 是什么 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">ai-workspace 是什么</h2>
+        
+        <div class="text-center mb-12">
+            <p class="text-2xl text-gray-300 mb-4">ai-workspace 是一个基于 Harness Engineering 的全栈 AI 协作工作空间</p>
+        </div>
+        
+        <div class="flex items-center justify-center" style="min-height: 400px; position: relative;">
+            <div class="node" style="width: 250px; text-align: center; z-index: 2; background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                <div class="text-3xl mb-3">🏗️</div>
+                <div class="text-2xl font-bold gradient-text">ai-workspace</div>
+                <div class="text-sm text-gray-400 mt-2">AI 协作统一空间</div>
+            </div>
+            
+            <div class="node" style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 200px; text-align: center;">
+                <div class="font-semibold text-blue-400 code" style="background: transparent; border: none; padding: 0;">AGENTS.md</div>
+                <div class="text-xs text-gray-400 mt-1">协作规则入口</div>
+            </div>
+            
+            <div class="node" style="position: absolute; top: 35%; left: 10%; width: 180px; text-align: center;">
+                <div class="text-2xl mb-2">📁</div>
+                <div class="font-semibold code" style="background: transparent; border: none; padding: 0;">backend/</div>
+                <div class="text-xs text-gray-400 mt-1">后端项目</div>
+            </div>
+            
+            <div class="node" style="position: absolute; top: 35%; right: 10%; width: 180px; text-align: center;">
+                <div class="text-2xl mb-2">🎨</div>
+                <div class="font-semibold code" style="background: transparent; border: none; padding: 0;">frontend/</div>
+                <div class="text-xs text-gray-400 mt-1">前端项目</div>
+            </div>
+            
+            <div class="node" style="position: absolute; bottom: 10%; left: 20%; width: 180px; text-align: center;">
+                <div class="text-2xl mb-2">📚</div>
+                <div class="font-semibold code" style="background: transparent; border: none; padding: 0;">docs/</div>
+                <div class="text-xs text-gray-400 mt-1">需求和方案</div>
+            </div>
+            
+            <div class="node" style="position: absolute; bottom: 10%; right: 20%; width: 180px; text-align: center;">
+                <div class="text-2xl mb-2">⚡</div>
+                <div class="font-semibold code" style="background: transparent; border: none; padding: 0;">skills/</div>
+                <div class="text-xs text-gray-400 mt-1">固化流程</div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            ai-workspace 不是单个工具，而是 AI 进入真实工程环境的承载层
+        </div>
+    </div>
+</section>
+
+<!-- 13. 五阶段工作流 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">从需求到上线的五阶段工作流</h2>
+        
+        <div class="mb-8 p-6 rounded-xl" style="background: #1a1a0f; border: 2px dashed #3b82f6;">
+            <h3 class="text-xl font-bold mb-4 text-blue-400">前置动作</h3>
+            <div class="flex flex-wrap gap-3">
+                <div class="card" style="display: inline-block; padding: 1rem 1.5rem;">
+                    <span class="code">ai-workspace-init</span>
+                    <span class="text-sm text-gray-400 ml-3">（来自 <span class="code">nx-skill</span> 仓库）</span>
+                    <div class="text-sm text-gray-400 mt-2">接入真实项目</div>
+                </div>
+                <div class="arrow"></div>
+                <div class="card" style="display: inline-block; padding: 1rem 1.5rem;">
+                    <span class="code">requirement-init</span>
+                    <div class="text-sm text-gray-400 mt-2">创建需求目录、需求地图和统一分支</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex items-start justify-between flex-wrap gap-4">
+            <div class="node flex-1 min-w-[220px]">
+                <div class="text-3xl font-black text-blue-400 mb-3">01</div>
+                <div class="text-xl font-bold mb-3">需求与设计</div>
+                <div class="text-sm text-gray-400 mb-3">产物：</div>
+                <div class="space-y-1 text-xs">
+                    <div class="text-gray-500">• PRD</div>
+                    <div class="text-gray-500">• 技术方案</div>
+                    <div class="text-gray-500">• 测试用例</div>
+                </div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[220px]">
+                <div class="text-3xl font-black text-blue-400 mb-3">02</div>
+                <div class="text-xl font-bold mb-3">后端开发</div>
+                <div class="text-sm text-gray-400 mb-3">产物：</div>
+                <div class="space-y-1 text-xs">
+                    <div class="text-gray-500">• 执行计划</div>
+                    <div class="text-gray-500">• 代码实现</div>
+                    <div class="text-gray-500">• 单元测试</div>
+                </div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[220px]">
+                <div class="text-3xl font-black text-blue-400 mb-3">03</div>
+                <div class="text-xl font-bold mb-3">前端开发</div>
+                <div class="text-sm text-gray-400 mb-3">产物：</div>
+                <div class="space-y-1 text-xs">
+                    <div class="text-gray-500">• 执行计划</div>
+                    <div class="text-gray-500">• 页面组件</div>
+                    <div class="text-gray-500">• API 调用</div>
+                </div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[220px]">
+                <div class="text-3xl font-black text-blue-400 mb-3">04</div>
+                <div class="text-xl font-bold mb-3">测试用例与自动化</div>
+                <div class="text-sm text-gray-400 mb-3">产物：</div>
+                <div class="space-y-1 text-xs">
+                    <div class="text-gray-500">• 功能测试用例</div>
+                    <div class="text-gray-500">• 接口自动化</div>
+                    <div class="text-gray-500">• UI 自动化</div>
+                </div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node flex-1 min-w-[220px]">
+                <div class="text-3xl font-black text-blue-400 mb-3">05</div>
+                <div class="text-xl font-bold mb-3">联调、测试与验收</div>
+                <div class="text-sm text-gray-400 mb-3">产物：</div>
+                <div class="space-y-1 text-xs">
+                    <div class="text-gray-500">• 验证记录</div>
+                    <div class="text-gray-500">• 审查报告</div>
+                    <div class="text-gray-500">• 上线确认</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            ai-workspace 让 AI 按阶段推进，而不是拿到需求后随机干活
+        </div>
+    </div>
+</section>
+
+<!-- 14. 阶段一：需求与设计 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">阶段一：需求与设计</h2>
+        <p class="text-xl text-gray-400 mb-12">开发前共同事实源如何形成</p>
+        
+        <div class="flex items-center justify-center gap-6 flex-wrap">
+            <div class="card" style="width: 200px; text-align: center;">
+                <div class="text-3xl mb-3">📝</div>
+                <div class="font-bold">输入</div>
+                <div class="text-sm text-gray-400 mt-2">用户描述</div>
+                <div class="text-sm text-gray-400">需求背景</div>
+            </div>
+            
+            <div class="arrow"></div>
+            
+            <div class="card" style="width: 300px;">
+                <div class="font-bold mb-4 text-center text-blue-400">Skill</div>
+                <div class="space-y-2">
+                    <div class="code text-xs">prd-generator</div>
+                    <div class="code text-xs">backend-tech-design</div>
+                    <div class="code text-xs">frontend-tech-design</div>
+                    <div class="code text-xs">test-case-generator</div>
+                </div>
+            </div>
+            
+            <div class="arrow"></div>
+            
+            <div class="card" style="width: 200px; text-align: center;">
+                <div class="text-3xl mb-3">📄</div>
+                <div class="font-bold">产物</div>
+                <div class="text-sm text-gray-400 mt-2">PRD</div>
+                <div class="text-sm text-gray-400">后端技术方案</div>
+                <div class="text-sm text-gray-400">前端技术方案</div>
+                <div class="text-sm text-gray-400">测试用例</div>
+            </div>
+            
+            <div class="arrow"></div>
+            
+            <div class="card" style="width: 180px; text-align: center; background: #1a1a0f; border-color: #f59e0b;">
+                <div class="text-3xl mb-3">🚧</div>
+                <div class="font-bold text-yellow-400">确认门禁</div>
+                <div class="text-sm text-gray-400 mt-2">文档确认后进入开发</div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            开发前先把需求、方案、测试范围变成共同事实源
+        </div>
+    </div>
+</section>
+
+<!-- 15. 阶段二和三：按执行计划开发 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">阶段二和三：按执行计划开发</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="swim-lane">
+                <h3 class="text-2xl font-bold mb-6 text-blue-400 text-center">后端泳道</h3>
+                <div class="space-y-4">
+                    <div class="matrix-cell">
+                        <div class="text-sm">1. 读取后端技术方案</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="text-sm">2. 定位后端项目</div>
+                    </div>
+                    <div class="matrix-cell" style="border-color: #3b82f6;">
+                        <div class="text-sm mb-2">3. 拆执行计划</div>
+                        <span class="code text-xs">superpowers:writing-plans</span>
+                    </div>
+                    <div class="matrix-cell" style="border-color: #3b82f6;">
+                        <div class="text-sm mb-2">4. 按计划开发</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="code text-xs">superpowers:test-driven-development</span>
+                            <span class="code text-xs">superpowers:subagent-driven-development</span>
+                        </div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="text-sm">5. 补充单元测试，运行项目测试</div>
+                    </div>
+                    <div class="matrix-cell" style="border-color: #f59e0b; background: #1a1a0f;">
+                        <div class="text-sm mb-2 text-yellow-400">6. 质量门禁</div>
+                        <span class="code text-xs">requirement-code-review</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <h3 class="text-2xl font-bold mb-6 text-green-400 text-center">前端泳道</h3>
+                <div class="space-y-4">
+                    <div class="matrix-cell">
+                        <div class="text-sm">1. 读取前端技术方案</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="text-sm">2. 定位前端项目</div>
+                    </div>
+                    <div class="matrix-cell" style="border-color: #3b82f6;">
+                        <div class="text-sm mb-2">3. 拆执行计划</div>
+                        <span class="code text-xs">superpowers:writing-plans</span>
+                    </div>
+                    <div class="matrix-cell" style="border-color: #3b82f6;">
+                        <div class="text-sm mb-2">4. 按计划开发</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="code text-xs">superpowers:test-driven-development</span>
+                            <span class="code text-xs">superpowers:subagent-driven-development</span>
+                        </div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="text-sm">5. 实现 API 调用层、页面、组件、路由和状态管理</div>
+                    </div>
+                    <div class="matrix-cell" style="border-color: #f59e0b; background: #1a1a0f;">
+                        <div class="text-sm mb-2 text-yellow-400">6. 质量门禁</div>
+                        <span class="code text-xs">requirement-code-review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            技术方案不会直接跳到代码，而是先变成执行计划，再按计划开发、测试和审查
+        </div>
+    </div>
+</section>
+
+<!-- 16. 阶段四和五：自动化测试与验收闭环 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">阶段四和五：自动化测试与验收闭环</h2>
+        
+        <div class="mb-12">
+            <h3 class="text-2xl font-bold mb-6 text-blue-400">测试用例与自动化</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card text-center">
+                    <div class="text-4xl mb-4">📋</div>
+                    <div class="code mb-3">test-case-generator</div>
+                    <p class="text-sm text-gray-400">完善功能测试用例</p>
+                </div>
+                
+                <div class="card text-center">
+                    <div class="text-4xl mb-4">🔌</div>
+                    <div class="code mb-3">api-test-automation</div>
+                    <p class="text-sm text-gray-400">基于 pytest + requests 编写接口自动化测试</p>
+                </div>
+                
+                <div class="card text-center">
+                    <div class="text-4xl mb-4">🎭</div>
+                    <div class="code mb-3">ui-test-automation</div>
+                    <p class="text-sm text-gray-400">基于 Playwright + pytest 编写 UI 自动化测试</p>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <h3 class="text-2xl font-bold mb-6 text-green-400">联调、测试与验收闭环</h3>
+            <div class="flex items-center justify-center gap-6 flex-wrap">
+                <div class="node" style="width: 200px; text-align: center;">
+                    <div class="text-2xl mb-2">📋</div>
+                    <div class="font-semibold">测试用例</div>
+                </div>
+                
+                <div class="arrow"></div>
+                
+                <div class="node" style="width: 200px; text-align: center;">
+                    <div class="text-2xl mb-2">⚙️</div>
+                    <div class="font-semibold">自动化验证</div>
+                </div>
+                
+                <div class="arrow"></div>
+                
+                <div class="node" style="width: 200px; text-align: center;">
+                    <div class="text-2xl mb-2">🤖</div>
+                    <div class="font-semibold">AI 审查</div>
+                </div>
+                
+                <div class="arrow"></div>
+                
+                <div class="node" style="width: 200px; text-align: center; border-color: #10b981;">
+                    <div class="text-2xl mb-2">💾</div>
+                    <div class="font-semibold text-green-400">结果回写</div>
+                    <div class="text-xs text-gray-400 mt-2">沉淀到 <span class="code text-xs">docs/</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            测试不是最后补文档，而是贯穿需求、开发、自动化和验收的闭环
+        </div>
+    </div>
+</section>
+
+<!-- 17. ai-workspace Skill 分层 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">ai-workspace Skill 分层</h2>
+        
+        <div class="space-y-4">
+            <div class="swim-lane">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="text-xl font-bold text-blue-400 mb-2">1. 工作空间接入</div>
+                        <div class="text-sm text-gray-400">从底座开始</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="code">ai-workspace-init</span>
+                        <span class="text-sm text-gray-400">（来自 <span class="code">nx-skill</span> 仓库）</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="text-xl font-bold text-blue-400 mb-2">2. 需求与方案</div>
+                        <div class="text-sm text-gray-400">明确做什么</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="code">requirement-init</span>
+                        <span class="code">prd-generator</span>
+                        <span class="code">backend-tech-design</span>
+                        <span class="code">frontend-tech-design</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="text-xl font-bold text-blue-400 mb-2">3. 开发执行</div>
+                        <div class="text-sm text-gray-400">按计划实现</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="code">superpowers:writing-plans</span>
+                        <span class="code">superpowers:test-driven-development</span>
+                        <span class="code">superpowers:subagent-driven-development</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="text-xl font-bold text-blue-400 mb-2">4. 测试与自动化</div>
+                        <div class="text-sm text-gray-400">验证与闭环</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="code">test-case-generator</span>
+                        <span class="code">api-test-automation</span>
+                        <span class="code">ui-test-automation</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="text-xl font-bold text-blue-400 mb-2">5. 编码与质量</div>
+                        <div class="text-sm text-gray-400">门禁保障</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="code">requirement-code-review</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="swim-lane">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="text-xl font-bold text-blue-400 mb-2">6. 数据查询</div>
+                        <div class="text-sm text-gray-400">验证支撑</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="code">mysql</span>
+                        <span class="code">starrocks</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            自研 skill 是围绕团队交付流程分层设计的，不是零散 prompt
+        </div>
+    </div>
+</section>
+
+<!-- 18. 前端、QA、后端的视角 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">前端、QA、后端的视角</h2>
+        
+        <div class="card mb-12" style="background: linear-gradient(135deg, #1a1a2e, #16213e); border-color: #3b82f6;">
+            <h3 class="text-2xl font-bold mb-4 text-center gradient-text">核心观点</h3>
+            <ul class="space-y-3 text-lg">
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3 text-2xl">•</span>
+                    <span class="text-gray-200">在 AI 的协作下具备全栈开发的能力</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3 text-2xl">•</span>
+                    <span class="text-gray-200">完整的需求不再需要多人反复互相沟通，减少沟通成本</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-3 text-2xl">•</span>
+                    <span class="text-gray-200">开发不再需要严格分角色，一个人就像一个完整的小团队</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="flex items-center justify-center gap-8 flex-wrap mb-12">
+            <div class="card" style="width: 220px; text-align: center; background: #1a1a0f; border-color: #f59e0b;">
+                <div class="text-4xl mb-3">🎨</div>
+                <h3 class="text-xl font-bold mb-3 text-yellow-400">前端</h3>
+                <p class="text-sm text-gray-400">不只写页面，也能理解接口、数据流、后端影响范围和测试验证</p>
+            </div>
+            
+            <div class="card" style="width: 220px; text-align: center; background: #0f1a0f; border-color: #10b981;">
+                <div class="text-4xl mb-3">✅</div>
+                <h3 class="text-xl font-bold mb-3 text-green-400">QA</h3>
+                <p class="text-sm text-gray-400">不只做最后验收，也能参与需求理解、测试设计、接口自动化和 UI 自动化</p>
+            </div>
+            
+            <div class="card" style="width: 220px; text-align: center; background: #0f0f1a; border-color: #3b82f6;">
+                <div class="text-4xl mb-3">⚙️</div>
+                <h3 class="text-xl font-bold mb-3 text-blue-400">后端</h3>
+                <p class="text-sm text-gray-400">不只写接口，也能理解前端交互、测试范围和完整交付链路</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center justify-center gap-8 flex-wrap">
+            <div class="text-6xl text-blue-400">+</div>
+            
+            <div class="card" style="width: 250px; text-align: center;">
+                <div class="text-3xl mb-3">🤖</div>
+                <div class="text-xl font-bold gradient-text">AI + ai-workspace</div>
+                <div class="text-sm text-gray-400 mt-2">共同协作环境</div>
+            </div>
+            
+            <div class="text-6xl text-blue-400">=</div>
+            
+            <div class="card" style="width: 300px; text-align: center; background: linear-gradient(135deg, #1a1a2e, #16213e); border-color: #10b981;">
+                <div class="text-4xl mb-3">🚀</div>
+                <div class="text-2xl font-bold text-green-400">一个人 = 一个小团队</div>
+                <div class="text-sm text-gray-400 mt-3">全栈需求交付能力</div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            ai-workspace 让前端、QA、后端都能突破原来的单一角色边界，在 AI 协作下具备更完整的全栈需求交付能力
+        </div>
+    </div>
+</section>
+
+<!-- 19. KOL 项目小需求迭代实践链路 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">KOL 项目小需求迭代实践链路</h2>
+        
+        <div class="card mb-8" style="background: linear-gradient(135deg, #1a1a2e, #16213e); border-color: #3b82f6;">
+            <p class="text-lg text-gray-300">
+                从第一次使用 ai-workspace 的开发者视角，说明工作空间如何帮助进入 KOL 业务上下文、处理跨前后端项目，并依赖知识库完成需求方案和技术方案设计。
+            </p>
+        </div>
+        
+        <div class="flow-vertical">
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">初始化工作空间</div>
+                <div class="code mb-2">ai-workspace-init</div>
+                <div class="text-sm text-gray-400">从 <span class="code text-xs">nx-skill</span> 仓库一键初始化自己的工作空间（大媒体、KOL、网盟）</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">工作空间接入</div>
+                <div class="text-sm text-gray-400">把前端、后端、文档和测试放到同一个上下文</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node" style="border-color: #10b981;">
+                <div class="text-2xl font-bold text-green-400 mb-2">知识库支撑</div>
+                <div class="code mb-2">docs/</div>
+                <div class="text-sm text-gray-400">需求方案和技术方案直接依赖业务知识、历史方案和项目规范</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">创建需求</div>
+                <div class="code mb-2">requirement-init</div>
+                <div class="text-sm text-gray-400">创建需求目录、需求地图和统一分支</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">整理需求</div>
+                <div class="code mb-2">prd-generator</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">生成技术方案</div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">backend-tech-design</span>
+                    <span class="code">frontend-tech-design</span>
+                </div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">生成测试用例</div>
+                <div class="code mb-2">test-case-generator</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">拆执行计划</div>
+                <div class="code mb-2">superpowers:writing-plans</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node">
+                <div class="text-2xl font-bold text-blue-400 mb-2">按计划实现、补测试和验证</div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="code">superpowers:test-driven-development</span>
+                    <span class="code">superpowers:subagent-driven-development</span>
+                </div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node" style="border-color: #f59e0b; background: #1a1a0f;">
+                <div class="text-2xl font-bold text-yellow-400 mb-2">代码规范审查</div>
+                <div class="code mb-2">requirement-code-review</div>
+            </div>
+            <div class="arrow"></div>
+            
+            <div class="node" style="border-color: #10b981;">
+                <div class="text-2xl font-bold text-green-400 mb-2">联调、测试、验收、结果回写</div>
+                <div class="text-sm text-gray-400">完整闭环，沉淀到文档</div>
+            </div>
+        </div>
+        
+        <div class="mt-12 link-card" style="border-left-color: #3b82f6;">
+            <div class="font-semibold mb-2">📄 具体步骤文档</div>
+            <a href="https://alidocs.dingtalk.com/i/nodes/R1zknDm0WR3Aml0Nix0oqKndVBQEx5rG?iframeQuery=utm_source%3Dportal%26utm_medium%3Dportal_main_colum_create" target="_blank">
+                KOL 项目小需求迭代步骤
+            </a>
+        </div>
+        
+        <div class="card mt-8" style="background: linear-gradient(135deg, #1a1a2e, #16213e); border-color: #10b981;">
+            <h3 class="text-xl font-bold mb-3 text-green-400">第一次使用者的价值</h3>
+            <p class="text-gray-300">
+                ai-workspace 对第一次使用者的价值，不只是提供一串 skill，而是降低进入复杂业务和多仓工程的门槛。
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- 20. 阶段性效果与不足 -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-5xl font-bold mb-12 text-gray-100">阶段性效果与不足</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="card" style="background: #1a1a0f; border-color: #f59e0b;">
+                <h3 class="text-2xl font-bold mb-6 text-yellow-400">下一步演进方向</h3>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="text-3xl font-black text-yellow-400 mr-4 mt-1">01</div>
+                        <div>
+                            <div class="font-semibold mb-1">引入 gstack</div>
+                            <div class="text-sm text-gray-400">做多角色审查</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="text-3xl font-black text-yellow-400 mr-4 mt-1">02</div>
+                        <div>
+                            <div class="font-semibold mb-1">使用 issue 管理</div>
+                            <div class="text-sm text-gray-400">项目完整生命周期</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="text-3xl font-black text-yellow-400 mr-4 mt-1">03</div>
+                        <div>
+                            <div class="font-semibold mb-1">统一需求方案设计</div>
+                            <div class="text-sm text-gray-400">考虑将前后端分开设计方案改为按照需求一起设计方案</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="text-3xl font-black text-yellow-400 mr-4 mt-1">04</div>
+                        <div>
+                            <div class="font-semibold mb-1">设置 hook 门禁</div>
+                            <div class="text-sm text-gray-400">需求开发的每个阶段设置门禁</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="text-3xl font-black text-yellow-400 mr-4 mt-1">05</div>
+                        <div>
+                            <div class="font-semibold mb-1">实现反馈循环</div>
+                            <div class="text-sm text-gray-400">使每次需求都能让 AI 更聪明</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="background: #0f1a0f; border-color: #10b981;">
+                <h3 class="text-2xl font-bold mb-6 text-green-400">已经证明的价值</h3>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <span class="text-green-400 mr-3 text-2xl">✓</span>
+                        <div>
+                            <div class="font-semibold mb-1">全栈需求开发</div>
+                            <div class="text-sm text-gray-400">协助前端、QA、后端完成一些全栈需求开发</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <span class="text-green-400 mr-3 text-2xl">✓</span>
+                        <div>
+                            <div class="font-semibold mb-1">可追踪流程</div>
+                            <div class="text-sm text-gray-400">把需求到上线变成可追踪流程</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <span class="text-green-400 mr-3 text-2xl">✓</span>
+                        <div>
+                            <div class="font-semibold mb-1">同步打磨</div>
+                            <div class="text-sm text-gray-400">让需求交付和 ai-workspace 同步打磨</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <span class="text-green-400 mr-3 text-2xl">✓</span>
+                        <div>
+                            <div class="font-semibold mb-1">持续沉淀</div>
+                            <div class="text-sm text-gray-400">文档、方案、测试用例、自动化用例和审查报告持续沉淀</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-xl text-gray-300">
+            ai-workspace 还不是完美系统，但已经在真实需求里产生协作价值
+        </div>
+    </div>
+</section>
+
+<!-- 21. 结尾：从个人提效到团队能力 -->
+<section class="section" style="position: relative; overflow: hidden;">
+    <div class="network-bg" style="opacity: 0.03;">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="network2" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <circle cx="50" cy="50" r="2" fill="#3b82f6"/>
+                    <line x1="50" y1="50" x2="100" y2="50" stroke="#3b82f6" stroke-width="1"/>
+                    <line x1="50" y1="50" x2="75" y2="86.6" stroke="#3b82f6" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#network2)"/>
+        </svg>
+    </div>
+    <div class="container" style="position: relative; z-index: 1;">
+        <h2 class="text-6xl font-black mb-8 text-center gradient-text" style="line-height: 1.3;">
+            Superpower 不是让一个人写得更快
+        </h2>
+        <p class="text-3xl text-gray-300 mb-16 text-center font-light">
+            而是让团队把经验、流程和上下文变成可复用的 AI 协作能力
+        </p>
+        
+        <div class="flex items-center justify-center gap-12 flex-wrap mb-12">
+            <div class="card text-center" style="width: 300px; background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                <div class="text-5xl mb-4">🏗️</div>
+                <h3 class="text-2xl font-bold gradient-text mb-3">Harness Engineer</h3>
+                <p class="text-gray-400">是底座</p>
+            </div>
+            
+            <div class="card text-center" style="width: 300px; background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                <div class="text-5xl mb-4">⚡</div>
+                <h3 class="text-2xl font-bold gradient-text mb-3">Superpowers</h3>
+                <p class="text-gray-400">是方法</p>
+            </div>
+            
+            <div class="card text-center" style="width: 300px; background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                <div class="text-5xl mb-4">🚀</div>
+                <h3 class="text-2xl font-bold gradient-text mb-3">ai-workspace</h3>
+                <p class="text-gray-400">是工程化承载</p>
+            </div>
+        </div>
+        
+        <div class="text-center text-2xl text-gray-300">
+            AI 融入开发协作的核心，不是个人单点提效，而是团队协作方式被工程化
+        </div>
+    </div>
+</section>
+
+<!-- 22. 参考链接 -->
+<section class="section" style="min-height: auto; padding: 3rem 2rem;">
+    <div class="container">
+        <h2 class="text-4xl font-bold mb-8 text-gray-100">参考链接</h2>
+        
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold mb-4 text-blue-400">Harness Engineer</h3>
+            <div class="link-card">
+                <a href="https://mp.weixin.qq.com/s/u4SgBF70rRVp0DQMF_zEYw" target="_blank">
+                    https://mp.weixin.qq.com/s/u4SgBF70rRVp0DQMF_zEYw
+                </a>
+            </div>
+            <div class="link-card">
+                <a href="https://mp.weixin.qq.com/s/rlIyIIZOXFObNIXbPI7gDg" target="_blank">
+                    https://mp.weixin.qq.com/s/rlIyIIZOXFObNIXbPI7gDg
+                </a>
+            </div>
+        </div>
+        
+        <div>
+            <h3 class="text-2xl font-bold mb-4 text-green-400">Superpowers</h3>
+            <div class="link-card">
+                <a href="https://mp.weixin.qq.com/s/BvrB7td8iJd4vNQW3T_UFg" target="_blank">
+                    https://mp.weixin.qq.com/s/BvrB7td8iJd4vNQW3T_UFg
+                </a>
+            </div>
+            <div class="link-card">
+                <a href="https://mp.weixin.qq.com/s/jBquLNHsWJWb5ATyNSxX-g" target="_blank">
+                    https://mp.weixin.qq.com/s/jBquLNHsWJWb5ATyNSxX-g
+                </a>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-gray-500 text-sm">
+            — 完 —
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
